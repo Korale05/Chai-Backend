@@ -1,7 +1,12 @@
 
 import { v2 as cloudinary} from "cloudinary";
 import fs from "fs";
+import { loadEnvFile } from "process";
 
+
+console.log(process.env.CLOUDINARY_CLOUD_NAME);
+console.log(process.env.CLOUDINARY_API_KEY);
+console.log(process.env.CLOUDINARY_API_SECRET);
 
 // Configuration
 cloudinary.config({ 
@@ -20,14 +25,22 @@ const uploadOnCloudinary =  async(localFilePath)=>{
             resource_type : "auto"
         });
         
+        fs.unlinkSync(localFilePath);
+        
         //file has been uploaded successfully 
         console.log("File is uploaded on cloudinary !",responce.url);
 
         return responce;
 
     }catch(error){
-        fs.unlinkSync(localFilePath); // remove the locally saved temperory file as the upload operation got failded
+        console.log("Cloudinary Error : ");
+        console.log(error);
+        if(localFilePath && fs.existsSync(localFilePath)){  
+            fs.unlinkSync(localFilePath);
+        }
         return null;
+        
     }
 }
 
+export { uploadOnCloudinary };

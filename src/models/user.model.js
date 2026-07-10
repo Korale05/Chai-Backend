@@ -52,11 +52,10 @@ const usersSchema = new mongoose.Schema(
 
 
 //hooks of mongodb
-usersSchema.pre("save",async function (next) {
+usersSchema.pre("save",async function () {
     if(this.isModified("password"))
-        this.password = bcrypt.hash(this.password,10);
+        this.password = await bcrypt.hash(this.password,10);
 
-    next();
 })
 
 
@@ -80,7 +79,7 @@ usersSchema.methods.generateAccessToken = function (){
 }
 
 
-usersSchema.method.generateRefreshToken = function (){
+usersSchema.methods.generateRefreshToken = function (){
     return jwt.sign(
        {
             _id : this._id,
