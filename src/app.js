@@ -26,6 +26,7 @@ import { upload } from "./middlewares/multer.middleware.js";
 
 //routes decleration 
 app.use("/api/v1/user",userRouter);
+app.use("/videos")
 
 
 export default app;

@@ -10,6 +10,7 @@ import jwt from "jsonwebtoken";
 import { upload } from "../middlewares/multer.middleware.js";
 import { deleteFromCloudinary } from "../utils/deleteFromCloudinary.js";
 import mongoose from "mongoose";
+import { videos } from "../models/video.model.js";
 
  const options_accessToken = {
     httpOnly : true,
@@ -552,6 +553,8 @@ const getWatchHistory = asyncHandler(async(req,res)=>{
     )
 })
 
+
+
 export {  
     regieterUser ,
     loginUser ,
@@ -563,5 +566,6 @@ export {
     updateUserAvtar,
     updateUserCoverImage,
     getUserChannelProfile,
-    getWatchHistory
+    getWatchHistory,
+
 };                              

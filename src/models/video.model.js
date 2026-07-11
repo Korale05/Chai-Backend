@@ -4,14 +4,15 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 const videosSchema = new mongoose.Schema(
     {
         videoFile : {
-            type : String, //cloudinary url
-            required : true,
+            url : String,
+            public_id : String,
+            duration : Number,
         },
         thumbnail : {
-            type : String,
-            required : true
+            url : String,
+            public_id : String
         },
-        Title : {
+        title : {
             type : String,
             required : true
         },
@@ -25,6 +26,14 @@ const videosSchema = new mongoose.Schema(
         },
         views : {
             type : Number,
+            default : 0
+        },
+        likes : {
+            type : Number,
+            default : 0
+        },
+        commentCount : {
+            type : Number ,
             default : 0
         },
         isPublished : {
