@@ -98,7 +98,10 @@ const regieterUser = asyncHandler(async (req,res)=>{
                 url: avatar.secure_url,
                 public_id: avatar.public_id
             },
-            coverImage : coverImage ? coverImage.url : "" ,
+            coverImage : coverImage ? {
+                url : coverImage.secure_url,
+                public_id : coverImage.public_id
+            } : "" ,
             email,
             password,
             username : username.toLowerCase()
@@ -372,34 +375,62 @@ const updateUserAvtar = asyncHandler(async(req,res)=>{
 })
 
 const updateUserCoverImage = asyncHandler(async(req,res)=>{
-    const coverImageLocalPath = req.file.path;
+    /*
+    1. Get current user
+        ↓
+    2. Store old public_id
+            ↓
+    3. Upload new coverImage
+            ↓
+    4. Update MongoDB
+            ↓
+    5. Delete old CoverImage from Cloudinary
+            ↓
+    6. Return updated user
+    
+    */
+    
+    const userId = req.userId;
+    const coverImageLocalPath = req.file?.path;
 
     if(!coverImageLocalPath){
-        throw new ApiError(400,"coverImage file if missing !");
+        throw new ApiError(400," Cover Image File Missing !");
     }
+
+
+    const user = await users.findById(userId);
+    const old_public_id = user.coverImage?.public_id;
 
     const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
-    if(!coverImage.url){
-        throw new ApiError(400,"Error while uploading on coverImage!");
+    if(!coverImage){
+        throw new ApiError(500,"Error : CoverImage while Uploading on Cloud !");
     }
 
-    const user = await users.findByIdAndUpdate(
+    const updatedUser = await users.findByIdAndUpdate(
         userId,
         {
             $set : {
-                coverImage : coverImage,
+                coverImage : {
+                    url : coverImage.secure_url,
+                    public_id : coverImage.public_id
+                }
             }
         },
         {new : true}
     ).select("-password -refreshToken");
+
+    if(old_public_id){
+        await deleteFromCloudinary(old_public_id);
+    }
 
     return res
     .status(200)
     .json(
         new ApiResponse(
             200,
-            "Updated coverImage successfully!!"
+            updatedUser,
+            "User CoverImage Updated Successfully !"
         )
     )
 })
@@ -526,6 +557,7 @@ export {
     loginUser ,
     logoutUser ,
     refreshAccessToken ,
+    changeCurrentPassword,
     getCurrectUser ,
     updateAccountDetails,
     updateUserAvtar,

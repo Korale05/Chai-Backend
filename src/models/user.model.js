@@ -29,9 +29,11 @@ const usersSchema = new mongoose.Schema(
         avatar : {
             url : String,
             public_id : String,
+            required : true
         },
         coverImage : {
-            type : String
+            url : String,
+            public_id : String
         },
         watchHistory : [
             {
