@@ -4,9 +4,6 @@ import fs from "fs";
 import { loadEnvFile } from "process";
 
 
-console.log(process.env.CLOUDINARY_CLOUD_NAME);
-console.log(process.env.CLOUDINARY_API_KEY);
-console.log(process.env.CLOUDINARY_API_SECRET);
 
 // Configuration
 cloudinary.config({ 

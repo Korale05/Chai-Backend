@@ -27,8 +27,8 @@ const usersSchema = new mongoose.Schema(
             trim : true,
         },
         avatar : {
-            type : String, // cloudinary url
-            required : true
+            url : String,
+            public_id : String,
         },
         coverImage : {
             type : String
@@ -43,7 +43,7 @@ const usersSchema = new mongoose.Schema(
             type : String,
             required : [true , "Password is required!!!"],
         },
-         : {
+        refreshToken : {
             type : String,
         }
 
