@@ -169,7 +169,7 @@ const updateVideo = asyncHandler(async(req,res)=>{
 
     const thumbnailLocalPath = req?.file?.path;
 
-    const old_public_id = null;
+    let old_public_id = null;
     if(thumbnailLocalPath){
         old_public_id = video?.thumbnail?.public_id;
 

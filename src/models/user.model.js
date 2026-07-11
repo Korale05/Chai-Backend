@@ -27,13 +27,18 @@ const usersSchema = new mongoose.Schema(
             trim : true,
         },
         avatar : {
-            url : String,
-            public_id : String,
+            type : {
+                url : String,
+                public_id : String,
+            },
             required : true
         },
         coverImage : {
-            url : String,
-            public_id : String
+            type : {
+                url : String,
+                public_id : String,
+            },
+            required : true
         },
         watchHistory : [
             {

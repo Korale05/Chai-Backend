@@ -20,13 +20,16 @@ app.use(cookieParser());
 
 //routes import
 import userRouter from "./routes/user.route.js";
+import authRouter from "./routes/auth.routes.js"
+import studioRouter from "./routes/studio.route.js";
 import { upload } from "./middlewares/multer.middleware.js";
 
 
 
 //routes decleration 
 app.use("/api/v1/user",userRouter);
-app.use("/videos")
+app.use("/api/v1/auth",authRouter)
+app.use("/api/v1/studio/videos",studioRouter);
 
 
 export default app;

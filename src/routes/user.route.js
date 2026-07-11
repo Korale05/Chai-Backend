@@ -2,10 +2,6 @@
 import { Router } from "express";
 
 import { 
-    regieterUser ,
-    loginUser ,
-    logoutUser , 
-    refreshAccessToken, 
     changeCurrentPassword, 
     getCurrectUser, 
     updateAccountDetails, 
@@ -17,43 +13,26 @@ import {
 
 import { upload } from "../middlewares/multer.middleware.js";
 import { VerifyJWT } from "../middlewares/auth.middlewares.js";
+import jwt  from "jsonwebtoken";
 
 
 const router = Router();
 
-router.post("/register",
-    upload.fields([
-        {
-            name : "avatar",
-            maxCount : 1
-        },
-        {
-            name : "coverImage",
-            maxCount : 1
-        }
-    ]),
-    regieterUser);
+router.use(VerifyJWT());
+// secured routes
+router.post("/change-password",changeCurrentPassword);
 
-router.post("/login",loginUser)
+router.get("/current-user",getCurrectUser);
 
-router.post("/refresh-token",refreshAccessToken)
+router.post("/update-account",updateAccountDetails);
 
-//secured routes
-router.post("/logout",VerifyJWT,logoutUser);
+router.post("/update-avatar",upload.single("avatar"),updateUserAvtar);
 
-router.post("/change-password",VerifyJWT,changeCurrentPassword);
+router.post("/cover-image",upload.single("coverImage"),updateUserCoverImage);
 
-router.get("/current-user",VerifyJWT,getCurrectUser);
+router.get("/c/:username",getUserChannelProfile);
 
-router.post("/update-account",VerifyJWT,updateAccountDetails);
-
-router.post("/update-avatar",VerifyJWT,upload.single("avatar"),updateUserAvtar);
-
-router.post("/cover-image",VerifyJWT,upload.single("coverImage"),updateUserCoverImage);
-
-router.get("/c/:username",VerifyJWT,getUserChannelProfile);
-
-router.get("/history",VerifyJWT,getWatchHistory);
+router.get("/history",getWatchHistory);
 
 
 
