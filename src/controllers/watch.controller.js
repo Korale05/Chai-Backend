@@ -133,7 +133,7 @@ const likedVideo = asyncHandler(async(req,res)=>{
     const { videoId } = req.params;
     const userId = req.userId;
 
-    if( !mongoose.Types.ObjectId(videoId)){
+    if( !mongoose.Types.ObjectId.isValid(videoId)){
         throw new ApiError(400,"Invalid Video Id!");
     }
 
@@ -184,6 +184,11 @@ const likedVideo = asyncHandler(async(req,res)=>{
     )
 
 })
+
+/*
+POST   /videos/:videoId/like
+DELETE /videos/:videoId/like
+*/
 
 // comment add comment edit commment delte comment
 
