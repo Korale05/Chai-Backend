@@ -1,10 +1,10 @@
 import mongoose from "mongoose";
-import { videos } from "../models/video.model";
-import { asyncHandler } from "../utils/asyncHandler";
-import { users } from "../models/user.model";
-import { ApiError } from "../utils/apiError";
-import { ApiResponse } from "../utils/ApiResponse";
-
+import { videos } from "../models/video.model.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { users } from "../models/user.model.js";
+import { ApiError } from "../utils/apiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { likes } from "../models/Likes.model.js"
 
 
 const WatchVideoById = asyncHandler(async(req,res)=>{
@@ -70,10 +70,28 @@ const WatchVideoById = asyncHandler(async(req,res)=>{
                     }
                 ]
             }
-        },{
+        },
+        {
+            $lookup : {
+                from :  "likes",
+                localField : "_id",
+                foreignField : "video",
+                as : "likes"
+            }
+        },
+        {
             $addFields : {
                 owner : {
                     $first : "$owner"
+                },
+                likesCount : {
+                    $size : "$likes"
+                },
+                isLiked : {
+                    $in : [
+                        new mongoose.Types.ObjectId(userId),
+                        "$likes.user"
+                    ]
                 }
             }
         },
@@ -85,7 +103,7 @@ const WatchVideoById = asyncHandler(async(req,res)=>{
                 description: 1,
                 duration: 1,
                 views: 1,
-                likes: 1,
+                likesCount: 1,
                 commentCount: 1,
                 createdAt: 1,
                 owner: 1
@@ -110,6 +128,64 @@ const WatchVideoById = asyncHandler(async(req,res)=>{
     )
 })
 
+const likedVideo = asyncHandler(async(req,res)=>{
+    
+    const { videoId } = req.params;
+    const userId = req.userId;
+
+    if( !mongoose.Types.ObjectId(videoId)){
+        throw new ApiError(400,"Invalid Video Id!");
+    }
+
+    const video = await videos.findById(videoId);
+
+    if(!video){
+        throw new ApiError(400,"Video not found !");
+    }
+
+
+    const liked = likes.findById({
+        user : userId,
+        video : videoId
+    })
+    if(liked){
+        await likes.findByIdAndDelete(liked._id);
+
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    liked : "false"
+                },
+                "Video is unliked Successfully !"
+            )
+        )
+    }
+    
+
+    await likes.create(
+        {
+            user : userId,
+            video : videoId
+        }
+    );
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                liked : true
+            },
+            "Liked Video is Added !"
+        )
+    )
+
+})
+
+// comment add comment edit commment delte comment
 
 export {
     WatchVideoById
