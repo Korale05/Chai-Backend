@@ -58,7 +58,7 @@ const UploadVideo = asyncHandler(async(req,res)=>{
         if(!title?.trim()){
             throw new ApiError(400,"Title is required !");
         }
-    
+        
         if (!description?.trim()) {
             throw new ApiError(400, "Description is required");
         }
@@ -233,9 +233,10 @@ const deleteVideo = asyncHandler(async(req,res)=>{
     const video_public_id = video.videoFile.public_id;
     const thumbnail_public_id = video.thumbnail.public_id;
 
-    try {
-        await deleteFromCloudinary(video_public_id);
-        await deleteFromCloudinary(thumbnail_public_id);
+    
+    try {    
+        await deleteFromCloudinary(video_public_id,"video");
+        await deleteFromCloudinary(thumbnail_public_id,"image");
     } catch (error) {
         throw new ApiError(500, "Failed to delete files from Cloudinary");
     }

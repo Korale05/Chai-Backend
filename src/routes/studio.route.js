@@ -10,7 +10,7 @@ import { upload } from "../middlewares/multer.middleware.js";
 const router = Router();
 
 
-router.use(VerifyJWT());
+router.use(VerifyJWT);
 
 router.post("/",
     upload.fields([

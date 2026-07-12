@@ -23,13 +23,13 @@ import userRouter from "./routes/user.route.js";
 import authRouter from "./routes/auth.routes.js"
 import studioRouter from "./routes/studio.route.js";
 import { upload } from "./middlewares/multer.middleware.js";
-
-
+import watchRouter from "./routes/watch.route.js";
 
 //routes decleration 
 app.use("/api/v1/user",userRouter);
 app.use("/api/v1/auth",authRouter)
 app.use("/api/v1/studio/videos",studioRouter);
+app.use("/watch/",watchRouter);
 
 
 export default app;

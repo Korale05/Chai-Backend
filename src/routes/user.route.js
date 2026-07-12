@@ -18,7 +18,7 @@ import jwt  from "jsonwebtoken";
 
 const router = Router();
 
-router.use(VerifyJWT());
+router.use(VerifyJWT);
 // secured routes
 router.post("/change-password",changeCurrentPassword);
 
