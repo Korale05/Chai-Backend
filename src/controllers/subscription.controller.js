@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
-import { asyncHandler } from "../utils/asyncHandler";
-import { ApiError } from "../utils/apiError";
-import { videos } from "../models/video.model";
-import { ApiResponse } from "../utils/ApiResponse";
-
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/apiError.js";
+import { videos } from "../models/video.model.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { subscriptions } from "../models/subscription.model.js"
 
 
 
@@ -68,9 +68,34 @@ const toggleSubscription = asyncHandler(async(req,res)=>{
 })
 
 
+/* 
+Pagination position
+Match
+↓
+
+Lookup
+↓
+
+AddFields
+↓
+
+Skip
+↓
+
+Limit
+↓
+
+ReplaceRoot
+*/
+
 //GET /subscriptions/me/subscribed
 const getSubscribedChannels = asyncHandler(async(req,res)=>{
     const userId = req.userId;
+
+    let { page = 1 , limit = 10 } = req.query;
+
+    page = Number(page);
+    limit = Number(limit);
 
     const subscirbedChannel = await subscriptions.aggregate([
         {
@@ -80,9 +105,9 @@ const getSubscribedChannels = asyncHandler(async(req,res)=>{
         },{
             $lookup : {
                 from : "users",
-                localField : "subscriber",
+                localField : "channel",
                 foreignField : "_id",
-                as : "channel",
+                as : "channelinfo",
                 pipeline : [
                     {
                         $lookup : {
@@ -92,7 +117,7 @@ const getSubscribedChannels = asyncHandler(async(req,res)=>{
                             as : "subscribers"
                         }
                     },{
-                        $addField : {
+                        $addFields : {
                             subscriberCount : {
                                 $size : "$subscribers"
                             }
@@ -108,14 +133,21 @@ const getSubscribedChannels = asyncHandler(async(req,res)=>{
                 ]
             },
         },{
-            $addField : {
-                channel : {
-                    $first : "$channel"
+            $addFields : {
+                channelinfo : {
+                    $first : "$channelinfo"
                 }
             }
-        },{
-            $replaceRoot: {
-                newRoot: "$channel"
+        },
+        {
+            $skip : (page - 1)*limit
+        },
+        {
+            $limit : limit
+        },
+        {
+            $replaceRoot : {
+                newroot : "$channelinfo"
             }
         }
     ]);
@@ -125,8 +157,67 @@ const getSubscribedChannels = asyncHandler(async(req,res)=>{
     .json(
         new ApiResponse(
             200,
-            {getSubscribedChannels},
+            subscirbedChannel ,
             "Subscribed Channel List is given !"
+        )
+    )
+})
+
+const getSubscribersList = asyncHandler(async(req,res)=>{
+    const userId = req.userId;
+
+    let { page = 1,limit = 10} = req.query;
+    page = Number(page);
+    limit = Number(limit);
+
+    const subscribersList = await subscriptions.aggregate([
+        {
+            $match : {
+                channel : userId
+            }
+        },{
+            $lookup : {
+                from : "users",
+                localField : "subscriber",
+                foreignField : "_id",
+                as : "Subscribers",
+                pipeline : [
+                    {
+                        $project : {
+                            fullname : 1,
+                            username : 1,
+                            avatar : 1
+                        }
+                    }
+                ]
+            }
+        },{
+            $addFields : {
+                Subscribers : {
+                    $first : "$Subscribers"
+                }
+            }
+        },{
+            $skip : (page -1)*limit
+        },{
+            $limit : limit
+        },{
+            $replaceRoot : {
+                newRoot : "$Subscribers"
+            }
+        }
+    ])
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(
+            200,
+            {
+                subscribersList,
+                page,
+                limit,
+            }
         )
     )
 })
